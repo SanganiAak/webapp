@@ -35,7 +35,7 @@ app.post('/v1/user', async (request, res) => {
   try {
     const existingUser = await userTable.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: 'User account with the email address already exists.' });
+      return res.status(400).json({ message: 'User with the email address already exists.' });
     }
 
     const newUser = await userTable.create({
@@ -111,32 +111,7 @@ app.get('/v1/user/self', async (request, res) => {
       res.json(userDetails);
     } catch (error) {
         console.log("came to catch")
-      res.status(500).json({ message: 'Error retrieving user information.', error: error.message });
-    }
-  });
-  
-  // delete user
-  app.delete('/v1/user/self', async (request, res) => {
-    const authHeader = request.headers.authorization || '';
-    const base64Credentials = authHeader.split(' ')[1] || '';
-    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    const [email, password] = credentials.split(':');
-  
-    try {
-      const user = await userTable.findOne({ where: { email } });
-      if (!user) {
-        return res.status(404).json({ message: 'User not found.' });
-      }
-  
-      const passwordMatch = await bcrypt.compare(password, user.password);
-      if (!passwordMatch) {
-        return res.status(401).json({ message: 'Authentication failed.' });
-      }
-  
-      await user.destroy();
-      res.status(204).send(); 
-    } catch (error) {
-      res.status(500).json({ message: 'Error deleting user account.', error: error.message });
+      res.status(500).json({ message: 'Error getting user information.', error: error.message });
     }
   });
   
