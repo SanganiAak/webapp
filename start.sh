@@ -14,6 +14,7 @@ EOF
 npm init -y
 npm install
 npm install express sequelize mysql2 body-parser
+npm install bcrypt
 npm install dotenv
 
 #Starting server
