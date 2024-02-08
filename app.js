@@ -19,13 +19,14 @@ async function checkDatabaseConnection(req, res, next) {
 
 function validateUserInput(req, res, next) {
   const { email, password } = req.body;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // email example 'abc@efg.com'
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;  
+  // password example 'Abcd@123 lowercase letter, uppercase letter, digit, special character, minimum 8 characters'
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   
   if (!email || !emailRegex.test(email)) {
     return res.status(400).send();
   }
-  
   if (!password || !passwordRegex.test(password)) {
     return res.status(400).send();
   }
@@ -42,7 +43,6 @@ app.all('/healthz', async (request, response) => {
         response.status(400).send();
         return;
     }
-
     try {
         await sequelize.authenticate();
         response.setHeader('Cache-Control', 'no-cache');
