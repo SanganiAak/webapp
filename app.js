@@ -63,14 +63,15 @@ app.post('/v1/user', checkDatabaseConnection, validateUserInput, async (request,
       return res.status(400).send();
     }
 
-    userTable.create({
+    const newUser = await userTable.create({
       email,
       password: await bcrypt.hash(password, 10),
       firstName,
       lastName
     });
 
-    res.status(204).send();
+    const { password: _, ...userDetails } = newUser.toJSON();
+    res.status(201).json(userDetails);
   } catch (error) {
     res.status(400).send();
   }
@@ -103,7 +104,8 @@ app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (requ
     
     await user.save();
 
-    res.status(204).send();
+    const { password: _, ...userDetails } = user.toJSON();
+      res.status(200).json(userDetails);
   } catch (error) {
     res.status(400).send();
   }
