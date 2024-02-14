@@ -3,10 +3,10 @@ const sequelize = require('./sequelize');
 
 const User = sequelize.define('User', {
   id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
+    type: Sequelize.UUID,
+    defaultValue: Sequelize.UUIDV4,
     primaryKey: true,
-    field: 'id' 
+    field: 'id'
   },
   email: {
     type: Sequelize.STRING,
@@ -21,11 +21,13 @@ const User = sequelize.define('User', {
   },
   firstName: {
     type: Sequelize.STRING,
-    field: 'first_name'
+    field: 'first_name',
+    allowNull: false
   },
   lastName: {
     type: Sequelize.STRING,
-    field: 'last_name'
+    field: 'last_name',
+    allowNull: false
   },
   accountCreated: {
     type: Sequelize.DATE,
