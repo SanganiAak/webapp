@@ -4,7 +4,7 @@
   "description": "csye6225",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Tests can be executed here\" "
+    "test": "exit 1"
   },
   "keywords": [],
   "author": "",
