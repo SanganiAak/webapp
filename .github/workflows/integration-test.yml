@@ -1,0 +1,39 @@
+name: CI with Manual MySQL Installation
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
+    # - name: Install MySQL
+    #   run: |
+    #     # sudo apt-get update
+    #     # sudo apt-get install -y mysql-server
+    #     # sudo systemctl start mysql.service
+    #     # sudo mysql --user=root --password="" -e "ALTER USER 'root'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'root';"
+    #     # sudo systemctl restart mysql.service
+
+    - name: Configure MySQL
+      run: |
+       sudo mysql --user=root --password=root -e "CREATE DATABASE testdb;"
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      env:
+        HOST: 127.0.0.1
+        USER_NAME: root
+        PASSWORD: root
+        DATABASE: testdb
+        PORT: 3306
+      run: npm test

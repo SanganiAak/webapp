@@ -97,10 +97,9 @@ app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (requ
       return res.status(400).send();
     }
 
-    const { firstName, lastName, newPassword } = request.body;
+    const { firstName, lastName } = request.body;
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
-    if (newPassword) user.password = await bcrypt.hash(newPassword, 10); 
     
     await user.save();
 
@@ -146,3 +145,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Running server on port ${PORT}.`);
 });
+
+module.exports = app; 
