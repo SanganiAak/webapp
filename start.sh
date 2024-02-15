@@ -9,13 +9,14 @@ HOST=$HOST
 PORT=$PORT
 EOF
 
-
 # Installing required Node.js packages
 npm init -y
 npm install
 npm install express sequelize mysql2 body-parser
 npm install bcrypt
 npm install dotenv
+
+npm install --save-dev jest supertest
 
 #Starting server
 node app.js 
