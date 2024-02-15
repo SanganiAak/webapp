@@ -37,8 +37,10 @@ describe('User API Integration Tests', () => {
 
   test('Test 2 - Update the account and using the GET call, validate the account was updated', async () => {
     const updateData = {
+      email: "test@example.com",
       firstName: 'Updated',
-      lastName: 'User'
+      lastName: 'User',
+      password: "Password@123"
     };
     console.log(authHeader + " before put failed")
     let response = await request.put('/v1/user/self')

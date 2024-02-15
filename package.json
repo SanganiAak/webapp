@@ -4,7 +4,7 @@
   "description": "csye6225",
   "main": "app.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --forceExit"
   },
   "keywords": [],
   "author": "",
