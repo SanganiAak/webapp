@@ -57,7 +57,7 @@ describe('User API Integration Tests', () => {
     expect(response.body.lastName).toEqual(updateData.lastName);
 
   });
-});
+}
 
 
 //  comments for review
