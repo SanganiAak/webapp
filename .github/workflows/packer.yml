@@ -1,0 +1,70 @@
+name: Packer Build on GCP
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_AUTH }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure gcloud CLI
+        run: gcloud info
+
+      - name: Install Packer
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install packer
+
+      - name: Zip the repository
+        run: |
+          zip -r webapp.zip .
+          mv webapp.zip packer/shell/
+
+      - name: Create variables file from secrets
+        run: |
+          cat <<EOF > packer/variables.pkrvars.hcl
+                vpc_name   = "default"
+                project_id = "csye6225-414400"
+                var_count  = 1
+                app_name   = "webapp"
+                database   = "db"
+                route_next_hop_gateway = "default-internet-gateway"
+                route_dest_range = "0.0.0.0/0"
+                routing_mode = "REGIONAL"
+                ssh_username = "centos"
+          EOF
+
+      - name: Initialize Packer
+        run: |
+          cd packer/
+          packer init .
+
+      - name: Validate Packer configuration
+        run: |
+          cd packer/
+          packer validate -var-file="variables.pkrvars.hcl" .
+
+      - name: Run Packer build
+        run: |
+          cd packer/
+          packer init .
+          packer plugins install github.com/hashicorp/googlecompute
+          packer build -var-file="variables.pkrvars.hcl" .
