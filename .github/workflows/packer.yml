@@ -27,10 +27,11 @@ jobs:
       - name: Configure gcloud CLI
         run: gcloud info
 
-      - name: Set up Packer
-        uses: hashicorp/setup-packer@v1
-        with:
-          packer-version: '1.7.8'  # Specify the Packer version you want to use
+      - name: Install Packer
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install packer
 
       - name: Zip the repository
         run: |
@@ -50,8 +51,6 @@ jobs:
                 routing_mode = "REGIONAL"
                 GOOGLE_APPLICATION_CREDENTIALS = "service_account_1.json"
                 ssh_username = "centos"
-            #   variable_name = "${{ secrets.VARIABLE_VALUE }}"
-          # Add more variables as needed
           EOF
 
       - name: Initialize Packer
