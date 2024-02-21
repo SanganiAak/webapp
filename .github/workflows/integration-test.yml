@@ -1,4 +1,4 @@
-name: CI with Manual MySQL Installation
+name: CI with integration tests
 
 on: [push, pull_request]
 

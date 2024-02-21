@@ -19,7 +19,7 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
+          credentials_json: '${{ secrets.GCP_AUTH }}'
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -36,11 +36,11 @@ jobs:
       - name: Zip the repository
         run: |
           zip -r webapp.zip .
-          mv webapp.zip webapp/packer/shell/
+          mv webapp.zip packer/shell/
 
       - name: Create variables file from secrets
         run: |
-          cat <<EOF > webapp/packer/variables.pkrvars.hcl
+          cat <<EOF > packer/variables.pkrvars.hcl
                 vpc_name   = "default"
                 project_id = "csye6225-414400"
                 var_count  = 1
@@ -49,23 +49,22 @@ jobs:
                 route_next_hop_gateway = "default-internet-gateway"
                 route_dest_range = "0.0.0.0/0"
                 routing_mode = "REGIONAL"
-                GOOGLE_APPLICATION_CREDENTIALS = "service_account_1.json"
                 ssh_username = "centos"
           EOF
 
       - name: Initialize Packer
         run: |
-          cd webapp/packer/
+          cd packer/
           packer init .
 
       - name: Validate Packer configuration
         run: |
-          cd webapp/packer/
+          cd packer/
           packer validate -var-file="variables.pkrvars.hcl" .
 
       - name: Run Packer build
         run: |
-          cd webapp/packer/
+          cd packer/
+          packer init .
+          packer plugins install github.com/hashicorp/googlecompute
           packer build -var-file="variables.pkrvars.hcl" .
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}

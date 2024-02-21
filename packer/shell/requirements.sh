@@ -2,7 +2,9 @@
 
 sudo yum install unzip -y
 
-unzip -o /tmp/webapp.zip -d /tmp/
+sudo /tmp/webapp/
+
+unzip -o /tmp/webapp.zip -d /tmp/webapp/
 
 # curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 
