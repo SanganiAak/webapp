@@ -11,40 +11,20 @@ variable "vpc_name" {
   description = "The name of the VPC"
 }
 
-variable "var_count" {
-  default = 1
-  type    = number
-}
-
 variable "app_name" {
   type    = string
   default = "webapp"
 }
-variable "database" {
-  type    = string
-  default = "db"
-}
-
-variable "route_next_hop_gateway" {
-  type = string
-}
-variable "route_dest_range" {
-  type = string
-}
-
-variable "routing_mode" {
-  type = string
-}
 
 variable "zone" {
   description = "The GCP zone"
-  default     = "us-east1-b" 
+  default     = "us-east1-b"
 }
 
 variable "ssh_username" {
   description = "The SSH username"
   type        = string
-  default = "dev"
+  default     = "dev"
 }
 
 variable "image_family" {
@@ -53,7 +33,7 @@ variable "image_family" {
   default     = "centos-stream-8-custom"
 }
 
-variable "GOOGLE_APPLICATION_CREDENTIALS" {
+variable "source_image_family" {
   type    = string
-  default = null
+  default = "centos-stream-8"
 }

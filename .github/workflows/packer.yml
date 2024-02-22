@@ -41,30 +41,43 @@ jobs:
       - name: Create variables file from secrets
         run: |
           cat <<EOF > packer/variables.pkrvars.hcl
-                vpc_name   = "default"
-                project_id = "csye6225-414400"
-                var_count  = 1
-                app_name   = "webapp"
-                database   = "db"
-                route_next_hop_gateway = "default-internet-gateway"
-                route_dest_range = "0.0.0.0/0"
-                routing_mode = "REGIONAL"
-                ssh_username = "centos"
+          vpc_name                       = "default"
+          project_id                     = "${{ secrets.GCP_DEV_PROJECT_ID }}"
+          var_count                      = 1
+          app_name                       = "webapp"
+          ssh_username                   = "centos"
+
           EOF
 
       - name: Initialize Packer
         run: |
           cd packer/
-          packer init .
+          if ! packer init . ; then
+          echo "Failed - Packer init"
+          exit 1
+          fi
+
+      - name: Run packer fmt
+        run: |
+            if ! packer fmt -check . ; then
+            echo "Failed - Packer fmt"
+            exit 1
+            fi
 
       - name: Validate Packer configuration
         run: |
           cd packer/
-          packer validate -var-file="variables.pkrvars.hcl" .
+          if ! packer validate -var-file="variables.pkrvars.hcl" . ; then
+          echo "Failed - Packer validate"
+          exit 1
+          fi
 
       - name: Run Packer build
         run: |
           cd packer/
           packer init .
           packer plugins install github.com/hashicorp/googlecompute
-          packer build -var-file="variables.pkrvars.hcl" .
+          if ! packer build -var-file="variables.pkrvars.hcl" . ; then
+          echo "Failed - Packer build"
+          exit 1
+          fi
