@@ -39,7 +39,7 @@ variable "source_image_family" {
 }
 
 variable "HOST" {
-  type = string
+  type = number
 }
 
 variable "USER_NAME" {
