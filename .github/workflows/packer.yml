@@ -46,11 +46,11 @@ jobs:
           var_count                      = 1
           app_name                       = "webapp"
           ssh_username                   = "centos"
-          HOST = ${{ secrets.HOST }}
-          USER_NAME = ${{ secrets.USER_NAME }}
-          PASSWORD = "${{ secrets.PASSWORD }}"
-          DATABASE = "${{ secrets.DATABASE }}"
-          WEBAPP_PORT = 3000
+          HOST                           = ${{ secrets.HOST }}
+          USER_NAME                      = ${{ secrets.USER_NAME }}
+          PASSWORD                       = "${{ secrets.PASSWORD }}"
+          DATABASE                       = "${{ secrets.DATABASE }}"
+          WEBAPP_PORT                    = 3000
 
           EOF
 
