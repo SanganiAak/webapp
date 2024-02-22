@@ -1,5 +1,4 @@
 #!/bin/bash
-
 sudo yum install unzip -y
 
 sudo /tmp/webapp/
@@ -12,11 +11,11 @@ sudo yum install -y nodejs
 
 cd /tmp/webapp
 
-export USER_NAME=myUsername
-export PASSWORD=myPassword
-export DATABASE=myDatabaseName
-export HOST=127.0.0.1
-export PORT=3000
+export USER_NAME=$1
+export PASSWORD=$2
+export DATABASE=$3
+export HOST=$4
+export PORT=$5
 
 cat <<EOF > /tmp/webapp/.env
 USER_NAME=$USER_NAME

@@ -23,9 +23,9 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sh /tmp/mysql_install.sh",
+      "sh /tmp/mysql_install.sh ${var.USER_NAME} ${var.PASSWORD} ${var.DATABASE} ${var.HOST} ${var.PORT}",
       "sh /tmp/create_user.sh",
-      "sudo sh /tmp/requirements.sh"
+      "sudo sh /tmp/requirements.sh ${var.USER_NAME} ${var.PASSWORD} ${var.DATABASE} ${var.HOST} ${var.PORT}"
     ]
   }
 

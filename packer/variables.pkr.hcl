@@ -37,3 +37,23 @@ variable "source_image_family" {
   type    = string
   default = "centos-stream-8"
 }
+
+variable "HOST" {
+  type = string
+}
+
+variable "USER_NAME" {
+  type = string
+}
+
+variable "PASSWORD" {
+  type = string
+}
+
+variable "DATABASE" {
+  type = string
+}
+
+variable "WEBAPP_PORT" {
+  type = number
+}
