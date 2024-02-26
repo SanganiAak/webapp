@@ -3,8 +3,7 @@ source "googlecompute" "centos_custom_image" {
   source_image_family = var.source_image_family
   disk_size           = 100
   zone                = var.zone
-  ssh_username        = var.ssh_username
-  
+  ssh_username        = var.ssh_username,
   image_description   = "Custom CentOS Stream 8 image"
 
   image_labels = {
