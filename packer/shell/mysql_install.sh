@@ -12,9 +12,9 @@ sudo systemctl start mysqld
 
 sudo systemctl status mysqld
 
-mysql -u root <<EOF
-CREATE DATABASE myDatabaseName;
-CREATE USER 'myUsername'@'localhost' IDENTIFIED BY 'myPassword';
-GRANT ALL PRIVILEGES ON myDatabaseName.* TO 'myUsername'@'localhost';
-FLUSH PRIVILEGES;
-EOF
+# mysql -u root <<EOF
+# CREATE DATABASE myDatabaseName;
+# CREATE USER 'myUsername'@'localhost' IDENTIFIED BY 'myPassword';
+# GRANT ALL PRIVILEGES ON myDatabaseName.* TO 'myUsername'@'localhost';
+# FLUSH PRIVILEGES;
+# EOF

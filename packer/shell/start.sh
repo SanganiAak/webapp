@@ -7,6 +7,7 @@ cat <<EOF | sudo tee /etc/systemd/system/webapp_start.service
 [Unit]
 Description=CSYE 6225 webApp
 ConditionPathExists=/tmp/webapp/app.js
+ConditionPathExists=/tmp/webapp/.env
 After=network.target
 
 [Service]
@@ -26,7 +27,7 @@ SyslogIdentifier=csye6225
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl daemon-reload
-sudo systemctl enable webapp_start.service
-sudo systemctl start webapp_start.service
-sudo systemctl status webapp_start.service
+# sudo systemctl daemon-reload
+# sudo systemctl enable webapp_start.service
+# sudo systemctl start webapp_start.service
+# sudo systemctl status webapp_start.service
