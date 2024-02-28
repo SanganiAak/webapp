@@ -7,7 +7,6 @@ cat <<EOF | sudo tee /etc/systemd/system/webapp_start.service
 [Unit]
 Description=CSYE 6225 webApp
 ConditionPathExists=/tmp/webapp/app.js
-ConditionPathExists=/tmp/webapp/.env
 After=network.target
 
 [Service]

@@ -80,32 +80,35 @@ app.post('/v1/user', checkDatabaseConnection, validateUserInput, async (request,
 
 // update user
 app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (request, res) => {
+  const { firstName, lastName, password } = request.body;
   const authHeader = request.headers.authorization || '';
   const base64Credentials = authHeader.split(' ')[1] || '';
   const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-  const [email, password] = credentials.split(':');
+  const [email, Authpassword] = credentials.split(':');
 
   try {
     const user = await userTable.findOne({ where: { email } });
     if (!user) {
+      console.log("username not found");
       return res.status(400).send();
     }
 
     // Verify password
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(Authpassword, user.password);
     if (!passwordMatch) {
+      console.log("password not matching");
       return res.status(400).send();
     }
 
-    const { firstName, lastName } = request.body;
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
-    
+    if (password) user.password = await bcrypt.hash(password, 10);
     await user.save();
 
     const { password: _, ...userDetails } = user.toJSON();
       res.status(200).json(userDetails);
   } catch (error) {
+    console.log("other errors");
     res.status(400).send();
   }
 });
@@ -137,6 +140,7 @@ app.get('/v1/user/self', checkDatabaseConnection, async (request, res) => {
   
 
 app.use('*', (request, res) => {
+    console.log("ultimate error");
     res.status(400).send();
   });
   
