@@ -26,7 +26,7 @@ SyslogIdentifier=csye6225
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl daemon-reload
-sudo systemctl enable webapp_start.service
-sudo systemctl start webapp_start.service
-sudo systemctl status webapp_start.service
+# sudo systemctl daemon-reload
+# sudo systemctl enable webapp_start.service
+# sudo systemctl start webapp_start.service
+# sudo systemctl status webapp_start.service
