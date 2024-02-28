@@ -56,19 +56,19 @@ jobs:
 
           EOF
 
-      - name: Validate Packer configuration
-        run: |
-          cd packer/
-          if ! packer validate -var-file="variables.pkrvars.hcl" . ; then
-            echo "Failed - Packer validate"
-            exit 1
-          fi
-      
       - name: Initialize Packer
         run: |
           cd packer/
           if ! packer init . ; then
             echo "Failed - Packer init"
+            exit 1
+          fi
+          
+      - name: Validate Packer configuration
+        run: |
+          cd packer/
+          if ! packer validate -var-file="variables.pkrvars.hcl" . ; then
+            echo "Failed - Packer validate"
             exit 1
           fi
 
