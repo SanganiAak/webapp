@@ -49,27 +49,28 @@ jobs:
 
           EOF
 
-      - name: Initialize Packer
-        run: |
-          cd packer/
-          if ! packer init . ; then
-          echo "Failed - Packer init"
-          exit 1
-          fi
-
       - name: Run packer fmt
         run: |
+            cd packer/
             if ! packer fmt -check . ; then
-            echo "Failed - Packer fmt"
-            exit 1
+              echo "Failed - Packer fmt"
+              exit 1
             fi
 
       - name: Validate Packer configuration
         run: |
           cd packer/
           if ! packer validate -var-file="variables.pkrvars.hcl" . ; then
-          echo "Failed - Packer validate"
-          exit 1
+            echo "Failed - Packer validate"
+            exit 1
+          fi
+      
+      - name: Initialize Packer
+        run: |
+          cd packer/
+          if ! packer init . ; then
+            echo "Failed - Packer init"
+            exit 1
           fi
 
       - name: Run Packer build
@@ -78,6 +79,6 @@ jobs:
           packer init .
           packer plugins install github.com/hashicorp/googlecompute
           if ! packer build -var-file="variables.pkrvars.hcl" . ; then
-          echo "Failed - Packer build"
-          exit 1
+            echo "Failed - Packer build"
+            exit 1
           fi
