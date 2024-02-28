@@ -38,6 +38,14 @@ jobs:
           zip -r webapp.zip .
           mv webapp.zip packer/shell/
 
+      - name: Run packer fmt
+        run: |
+          cd packer/
+          if ! packer fmt -check . ; then
+            echo "Failed - Packer fmt"
+            exit 1
+          fi
+
       - name: Create variables file from secrets
         run: |
           cat <<EOF > packer/variables.pkrvars.hcl
@@ -48,14 +56,6 @@ jobs:
           ssh_username                   = "centos"
 
           EOF
-
-      - name: Run packer fmt
-        run: |
-            cd packer/
-            if ! packer fmt -check . ; then
-              echo "Failed - Packer fmt"
-              exit 1
-            fi
 
       - name: Validate Packer configuration
         run: |
