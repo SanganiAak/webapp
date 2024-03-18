@@ -23,7 +23,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sh /tmp/mysql_install.sh",
+      # "sh /tmp/mysql_install.sh",
       "sh /tmp/create_user.sh",
       "sudo sh /tmp/requirements.sh"
     ]
