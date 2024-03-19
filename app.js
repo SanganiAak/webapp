@@ -7,6 +7,7 @@ app.use(bodyParser.json());
 const bcrypt = require('bcrypt');
 const userTable = require('./userModel')
 sequelize.sync({ force: true });
+const logger = require('./logger'); 
 
 async function checkDatabaseConnection(req, res, next) {
   try {
@@ -46,6 +47,7 @@ app.all('/healthz', async (request, response) => {
     try {
         await sequelize.authenticate();
         response.setHeader('Cache-Control', 'no-cache');
+        logger.info("healthz successfull")
         response.status(200).send();
     } catch (error) {
         response.setHeader('Cache-Control', 'no-cache');
@@ -89,14 +91,14 @@ app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (requ
   try {
     const user = await userTable.findOne({ where: { email } });
     if (!user) {
-      console.log("username not found");
+      logger.info("username not found");
       return res.status(400).send();
     }
 
     // Verify password
     const passwordMatch = await bcrypt.compare(Authpassword, user.password);
     if (!passwordMatch) {
-      console.log("password not matching");
+      logger.info("password not matching");
       return res.status(400).send();
     }
 
@@ -108,7 +110,7 @@ app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (requ
     const { password: _, ...userDetails } = user.toJSON();
       res.status(200).json(userDetails);
   } catch (error) {
-    console.log("other errors");
+    logger.info("other errors");
     res.status(400).send();
   }
 });
@@ -140,14 +142,14 @@ app.get('/v1/user/self', checkDatabaseConnection, async (request, res) => {
   
 
 app.use('*', (request, res) => {
-    console.log("ultimate error");
+    logger.info("ultimate error");
     res.status(400).send();
   });
   
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Running server on port ${PORT}.`);
+  logger.info(`Running server on port ${PORT}.`);
 });
 
 module.exports = app; 
