@@ -25,7 +25,9 @@ build {
     inline = [
       "sh /tmp/mysql_install.sh",
       "sh /tmp/create_user.sh",
-      "sudo sh /tmp/requirements.sh"
+      "sudo sh /tmp/requirements.sh",
+      "sudo sh /tmp/install_gcp_ops_agent.sh"
+
     ]
   }
 

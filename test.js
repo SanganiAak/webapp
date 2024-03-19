@@ -2,6 +2,7 @@ const supertest = require('supertest');
 const app = require('./app');
 const sequelize = require('./sequelize');
 const request = supertest(app);
+const logger = require('./logger');
 
 beforeAll(async () => {
   await sequelize.sync({ force: true });
