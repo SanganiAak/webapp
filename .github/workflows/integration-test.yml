@@ -25,11 +25,12 @@ jobs:
       run: |
         npm install
         npm install bunyan
-        sudo mkdir -p /var/webapp/
-        sudo touch /var/webapp/myapp.log
+        sudo mkdir -p /tmp/webapp/
+        sudo touch /tmp/webapp/myapp.log
 
     - name: Run tests
       env:
+        NODE_ENV: "test"
         HOST: ${{ secrets.HOST }}
         USER_NAME: ${{ secrets.USER_NAME }}
         PASSWORD: ${{ secrets.PASSWORD }}
