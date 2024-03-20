@@ -16,8 +16,6 @@ logging:
       type: files
       include_paths:
       - /var/webapp/*.log
-      parser:
-        type: json
   service:
     pipelines:
       logs:
