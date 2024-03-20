@@ -25,8 +25,8 @@ jobs:
       run: |
         npm install
         npm install bunyan
-        sudo mkdir -p /tmp/webapps/
-        sudo touch /tmp/webapps/myapp.log
+        mkdir -p /tmp/webapps/
+        touch /tmp/webapps/myapp.log
 
     - name: Run tests
       env:
