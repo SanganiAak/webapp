@@ -22,6 +22,13 @@ const logger = bunyan.createLogger({
             path: path.join(logDirectory, 'myapp.log'),
             period: '1d', 
             count: 7 
+        },
+        {
+            level: 'error',
+            type: 'rotating-file',
+            path: path.join(logDirectory, 'myapp.log'),
+            period: '1d', 
+            count: 7 
         }
     ]
 });

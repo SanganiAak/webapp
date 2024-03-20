@@ -91,14 +91,14 @@ app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (requ
   try {
     const user = await userTable.findOne({ where: { email } });
     if (!user) {
-      logger.info("username not found");
+      logger.error("username not found");
       return res.status(400).send();
     }
 
     // Verify password
     const passwordMatch = await bcrypt.compare(Authpassword, user.password);
     if (!passwordMatch) {
-      logger.info("password not matching");
+      logger.error("password not matching");
       return res.status(400).send();
     }
 
@@ -110,7 +110,7 @@ app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (requ
     const { password: _, ...userDetails } = user.toJSON();
       res.status(200).json(userDetails);
   } catch (error) {
-    logger.info("other errors");
+    logger.error("other errors");
     res.status(400).send();
   }
 });
