@@ -22,10 +22,15 @@ jobs:
         sudo mysql --user=root --password=${{ secrets.PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.DATABASE }};"
 
     - name: Install dependencies
-      run: npm install
+      run: |
+        npm install
+        npm install bunyan
+        mkdir -p /tmp/webapps/
+        touch /tmp/webapps/myapp.log
 
     - name: Run tests
       env:
+        NODE_ENV: "test"
         HOST: ${{ secrets.HOST }}
         USER_NAME: ${{ secrets.USER_NAME }}
         PASSWORD: ${{ secrets.PASSWORD }}

@@ -10,6 +10,12 @@ curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
 
 sudo yum install -y nodejs
 
+# adding logs for the application
+sudo mkdir -p /var/webapp/
+sudo touch /var/webapp/myapp.log
+sudo chown csye6225:csye6225 /var/webapp/myapp.log
+sudo chmod -R u+rX /var/webapp/myapp.log
+
 cd /tmp/webapp
 
 # export USER_NAME=myUsername
@@ -31,5 +37,6 @@ npm install
 npm install express sequelize mysql2 body-parser
 npm install bcrypt
 npm install dotenv
+npm install bunyan 
 
 npm install --save-dev jest supertest
