@@ -18,7 +18,7 @@ describe('User API Integration Tests', () => {
     email: 'test@example.com',
     password: 'Password@123',
     firstName: 'Test',
-    lastName: 'User',
+    lastName: 'User'
   };
   authHeader = `Basic ${Buffer.from(`${userData.email}:${userData.password}`).toString('base64')}`;
 
@@ -29,6 +29,9 @@ describe('User API Integration Tests', () => {
     let response = await request.post('/v1/user').send(userData);
     expect(response.status).toBe(201);
     expect(response.body.email).toEqual(userData.email);
+
+    response = await request.get('/verify?email=test@example.com');
+    expect(response.status).toBe(200);
 
     response = await request.get('/v1/user/self')
                             .set('Authorization', authHeader);

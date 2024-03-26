@@ -25,6 +25,7 @@ jobs:
       run: |
         npm install
         npm install bunyan
+        npm install @google-cloud/pubsub
         mkdir -p /tmp/webapps/
         touch /tmp/webapps/myapp.log
 
