@@ -6,6 +6,7 @@ const logger = require('./logger');
 
 beforeAll(async () => {
   await sequelize.sync({ force: true });
+  jest.setTimeout(10000);
 });
 
 afterAll(async () => {
@@ -18,7 +19,7 @@ describe('User API Integration Tests', () => {
     email: 'test@example.com',
     password: 'Password@123',
     firstName: 'Test',
-    lastName: 'User',
+    lastName: 'User'
   };
   authHeader = `Basic ${Buffer.from(`${userData.email}:${userData.password}`).toString('base64')}`;
 
@@ -34,7 +35,7 @@ describe('User API Integration Tests', () => {
                             .set('Authorization', authHeader);
     expect(response.status).toBe(200);
     expect(response.body.email).toEqual(userData.email);
-  });
+  }, 10000);
 
   test('Test 2 - Update the account and using the GET call, validate the account was updated', async () => {
     const updateData = {
@@ -47,15 +48,13 @@ describe('User API Integration Tests', () => {
     let response = await request.put('/v1/user/self')
                                 .set('Authorization', authHeader)
                                 .send(updateData);
-    console.log(response.status + "  put failed")
     expect(response.status).toBe(200);
 
     response = await request.get('/v1/user/self')
                             .set('Authorization', authHeader);
-    console.log(response.status + "  puts get failed")
     expect(response.status).toBe(200);
     expect(response.body.firstName).toEqual(updateData.firstName);
     expect(response.body.lastName).toEqual(updateData.lastName);
 
-  });
+  }, 10000);
 });

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#create .env file
+# create .env file
 cat <<EOF > .env
 USER_NAME=$USER_NAME
 PASSWORD=$PASSWORD
@@ -16,6 +16,8 @@ npm install express sequelize mysql2 body-parser
 npm install bcrypt
 npm install dotenv
 npm install bunyan
+npm install @google-cloud/pubsub
+npm install uuid
 
 
 npm install --save-dev jest supertest

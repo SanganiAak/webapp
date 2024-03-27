@@ -2,8 +2,6 @@
 
 sudo yum install unzip -y
 
-sudo /tmp/webapp/
-
 unzip -o /tmp/webapp.zip -d /tmp/webapp/
 
 curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
@@ -38,5 +36,6 @@ npm install express sequelize mysql2 body-parser
 npm install bcrypt
 npm install dotenv
 npm install bunyan 
+npm install @google-cloud/pubsub
 
 npm install --save-dev jest supertest
