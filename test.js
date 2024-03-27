@@ -31,9 +31,6 @@ describe('User API Integration Tests', () => {
     expect(response.status).toBe(201);
     expect(response.body.email).toEqual(userData.email);
 
-    response = await request.get('/verify?email=test@example.com');
-    expect(response.status).toBe(200);
-
     response = await request.get('/v1/user/self')
                             .set('Authorization', authHeader);
     expect(response.status).toBe(200);

@@ -1,13 +1,13 @@
 #!/bin/bash
 
-#create .env file
-cat <<EOF > .env
-USER_NAME=$USER_NAME
-PASSWORD=$PASSWORD
-DATABASE=$DATABASE
-HOST=$HOST
-PORT=$PORT
-EOF
+# create .env file
+# cat <<EOF > .env
+# USER_NAME=$USER_NAME
+# PASSWORD=$PASSWORD
+# DATABASE=$DATABASE
+# HOST=$HOST
+# PORT=$PORT
+# EOF
 
 # Installing required Node.js packages
 npm init -y
@@ -17,7 +17,7 @@ npm install bcrypt
 npm install dotenv
 npm install bunyan
 npm install @google-cloud/pubsub
-
+npm install uuid
 
 
 npm install --save-dev jest supertest

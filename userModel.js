@@ -54,7 +54,12 @@ const User = sequelize.define('User', {
     allowNull: false,
     defaultValue: 0,
     field: 'verification_click_count'
-  }  
+  },
+  verificationToken: {
+    type: Sequelize.UUID,
+    allowNull: true,
+    field: 'verification_token'
+  }
 }, {
   timestamps: false,
   tableName: 'users'

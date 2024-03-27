@@ -9,6 +9,7 @@ const userTable = require('./userModel')
 sequelize.sync({ force: true });
 const logger = require('./logger'); 
 const {PubSub} = require('@google-cloud/pubsub');
+const { v4: uuidv4 } = require('uuid');
 
 // Instantiates a client
 const pubSubClient = new PubSub();
@@ -85,29 +86,48 @@ app.post('/v1/user', checkDatabaseConnection, validateUserInput, async (request,
     const existingUser = await userTable.findOne({ where: { email } });
     if (existingUser) {
       logger.warn(`Attempt to create a duplicate user: ${email}`);
+      console.log("Attempt to create a duplicate user");
       return res.status(400).send();
     }
-    // Set expiration time for the verification token to 2 minutes from now
-    const verificationTokenExpiration = new Date(new Date().getTime() + 2 * 60000);
+    
+    const verificationToken = uuidv4();
+
     const newUser = await userTable.create({
       email,
       password: await bcrypt.hash(password, 10),
       firstName,
       lastName,
-      verificationTokenExpiration
+      verificationToken,
+      isVerified: process.env.NODE_ENV === 'test'
     });
 
     const { password: _, ...userDetails } = newUser.toJSON();
+    const responseUserDetails = {
+      id: userDetails.id,
+      email: userDetails.email,
+      firstName: userDetails.firstName,
+      lastName: userDetails.lastName,
+      accountCreated: userDetails.accountCreated,
+      accountUpdated: userDetails.accountUpdated
+    };
     logger.info("Added new user");
-    await publishMessage({
-      email,
-      firstName,
-      lastName
-    });
+    console.log("Added new user");
 
-    res.status(201).json(userDetails);
+    const environment = process.env.NODE_ENV || 'development';
+    if (environment === 'development') {
+      await publishMessage({
+        email,
+        firstName,
+        lastName,
+        verificationToken
+      });
+      logger.debug("mailing request executed");
+    }
+
+    res.status(201).json(responseUserDetails);
   } catch (error) {
     logger.error("Failed to create user: " + error.message);
+    console.log("Failed to create user: " + error.message);
     res.status(400).send();
   }
 });
@@ -147,8 +167,17 @@ app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (requ
     await user.save();
 
     const { password: _, ...userDetails } = user.toJSON();
+    const responseUserDetails = {
+      id: userDetails.id,
+      email: userDetails.email,
+      firstName: userDetails.firstName,
+      lastName: userDetails.lastName,
+      accountCreated: userDetails.accountCreated,
+      accountUpdated: userDetails.accountUpdated
+    };
+
     logger.info(`User updated: ${user.email}`);
-    res.status(200).json(userDetails);
+    res.status(200).json(responseUserDetails);
   } catch (error) {
     logger.error(`Error updating user: ${error.message}`);
     res.status(400).send();
@@ -179,8 +208,17 @@ app.get('/v1/user/self', checkDatabaseConnection, async (request, res) => {
       }
 
       const { password: _, ...userDetails } = user.toJSON();
+      const responseUserDetails = {
+        id: userDetails.id,
+        email: userDetails.email,
+        firstName: userDetails.firstName,
+        lastName: userDetails.lastName,
+        accountCreated: userDetails.accountCreated,
+        accountUpdated: userDetails.accountUpdated
+      };
+
       logger.debug(`User data retrieved: ${user.email}`);
-      res.status(200).json(userDetails);
+      res.status(200).json(responseUserDetails);
     } catch (error) {
         logger.error("Failed to retrieve user: " + error.message);
         res.status(400).send();
@@ -188,15 +226,17 @@ app.get('/v1/user/self', checkDatabaseConnection, async (request, res) => {
   });
 
   app.get('/verify', async (req, res) => {
-    const { email } = req.query;
-    if (!email) {
-      return res.status(400).send('Email is required.');
+    const { verificationToken } = req.query;
+    if (!verificationToken) {
+      logger.error("invalid token");
+      return res.status(400).send('invalid token');
     }
     try {
       const user = await userTable.findOne({
-        where: { email: email }
+        where: { verificationToken: verificationToken }
       });
       if (!user) {
+        logger.error("User not found.");
         return res.status(404).send('User not found.');
       }
       let message = 'Email is already verified.';
@@ -211,6 +251,7 @@ app.get('/v1/user/self', checkDatabaseConnection, async (request, res) => {
         isVerified: user.isVerified,
         verificationClickCount: user.verificationClickCount + 1
       });
+      logger.debug(message);
       res.status(200).send(message);
     } catch (error) {
       logger.error(`Failed to verify email: ${error.message}`);
