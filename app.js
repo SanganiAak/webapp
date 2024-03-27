@@ -15,7 +15,7 @@ const { v4: uuidv4 } = require('uuid');
 const pubSubClient = new PubSub();
 
 async function publishMessage(data) {
-  const topicName = 'verify_email'; // Replace with your Pub/Sub topic name
+  const topicName = 'verify_email';
 
   const dataBuffer = Buffer.from(JSON.stringify(data));
 
@@ -86,7 +86,6 @@ app.post('/v1/user', checkDatabaseConnection, validateUserInput, async (request,
     const existingUser = await userTable.findOne({ where: { email } });
     if (existingUser) {
       logger.warn(`Attempt to create a duplicate user: ${email}`);
-      console.log("Attempt to create a duplicate user");
       return res.status(400).send();
     }
     
@@ -110,8 +109,7 @@ app.post('/v1/user', checkDatabaseConnection, validateUserInput, async (request,
       accountCreated: userDetails.accountCreated,
       accountUpdated: userDetails.accountUpdated
     };
-    logger.info("Added new user");
-    console.log("Added new user");
+    logger.info(`Added new user: ${email}`);
 
     const environment = process.env.NODE_ENV || 'development';
     if (environment === 'development') {
@@ -121,13 +119,12 @@ app.post('/v1/user', checkDatabaseConnection, validateUserInput, async (request,
         lastName,
         verificationToken
       });
-      logger.debug("mailing request executed");
+      logger.debug(`mailing request executed for user : ${email}`);
     }
 
     res.status(201).json(responseUserDetails);
   } catch (error) {
     logger.error("Failed to create user: " + error.message);
-    console.log("Failed to create user: " + error.message);
     res.status(400).send();
   }
 });
@@ -145,19 +142,19 @@ app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (requ
   try {
     const user = await userTable.findOne({ where: { email } });
     if (!user) {
-      logger.error("username not found");
+      logger.error(`username not found : ${email}`);
       return res.status(400).send();
     }
 
     // Verify password
     const passwordMatch = await bcrypt.compare(Authpassword, user.password);
     if (!passwordMatch) {
-      logger.error("password not matching");
+      logger.error(`password not matching for user : ${email}`);
       return res.status(400).send();
     }
 
     if(!user.isVerified){
-      logger.error("email not verified");
+      logger.error(`email not verified : ${email}`);
       return res.status(400).send();
     }
 
@@ -177,10 +174,10 @@ app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (requ
     };
 
     logger.info(`User updated: ${user.email}`);
-    res.status(200).json(responseUserDetails);
+    res.status(204).json();
   } catch (error) {
     logger.error(`Error updating user: ${error.message}`);
-    res.status(400).send();
+    res.status(401).send();
   }
 });
 
@@ -246,7 +243,6 @@ app.get('/v1/user/self', checkDatabaseConnection, async (request, res) => {
       } else if (!user.isVerified) {
         message = 'The link has expired.';
       }
-      // Increment verification click count and potentially update isVerified status
       await user.update({
         isVerified: user.isVerified,
         verificationClickCount: user.verificationClickCount + 1
