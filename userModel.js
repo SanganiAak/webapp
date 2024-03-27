@@ -59,6 +59,11 @@ const User = sequelize.define('User', {
     type: Sequelize.UUID,
     allowNull: true,
     field: 'verification_token'
+  },
+  verificationEmailSent: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: true,
+    field: 'verification_email_sent'
   }
 }, {
   timestamps: false,
