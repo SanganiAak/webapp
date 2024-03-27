@@ -2,8 +2,6 @@
 
 sudo yum install unzip -y
 
-sudo /tmp/webapp/
-
 unzip -o /tmp/webapp.zip -d /tmp/webapp/
 
 curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
