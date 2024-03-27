@@ -48,7 +48,7 @@ describe('User API Integration Tests', () => {
     let response = await request.put('/v1/user/self')
                                 .set('Authorization', authHeader)
                                 .send(updateData);
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(204);
 
     response = await request.get('/v1/user/self')
                             .set('Authorization', authHeader);
