@@ -155,7 +155,7 @@ app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (requ
 
     if(!user.isVerified){
       logger.error(`email not verified : ${email}`);
-      return res.status(400).send();
+      return res.status(403).send();
     }
 
     if (firstName) user.firstName = firstName;
@@ -201,7 +201,7 @@ app.get('/v1/user/self', checkDatabaseConnection, async (request, res) => {
   
       if(!user.isVerified){
         logger.error("email not verified");
-        return res.status(400).send();
+        return res.status(403).send();
       }
 
       const { password: _, ...userDetails } = user.toJSON();
