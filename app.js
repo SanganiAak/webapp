@@ -6,7 +6,6 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 const bcrypt = require('bcrypt');
 const userTable = require('./userModel')
-sequelize.sync({ force: true });
 const logger = require('./logger'); 
 const {PubSub} = require('@google-cloud/pubsub');
 const { v4: uuidv4 } = require('uuid');
