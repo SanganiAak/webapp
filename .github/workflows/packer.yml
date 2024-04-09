@@ -67,12 +67,93 @@ jobs:
             exit 1
           fi
 
+      # - name: Run Packer build
+      #   run: |
+      #     cd packer/
+      #     packer init .
+      #     packer plugins install github.com/hashicorp/googlecompute
+      #     if ! packer build -var-file="variables.pkrvars.hcl" . ; then
+      #       echo "Failed - Packer build"
+      #       exit 1
+      #     fi
+
       - name: Run Packer build
+        id: packer_build 
         run: |
           cd packer/
           packer init .
           packer plugins install github.com/hashicorp/googlecompute
-          if ! packer build -var-file="variables.pkrvars.hcl" . ; then
-            echo "Failed - Packer build"
-            exit 1
-          fi
+          PACKER_OUTPUT=$(packer build -var-file="variables.pkrvars.hcl" .)
+          
+          IMAGE_ID=$(echo "$PACKER_OUTPUT" | grep 'A disk image was created in the .* project: packer-' | awk '{print $NF}')
+          echo "Extracted Image ID: $IMAGE_ID"
+          
+          echo "::set-output name=image_id::$IMAGE_ID"
+          
+      - name: Create instance template with Packer image
+        run: |
+            PROJECT_ID="csye6225-414400"
+            MACHINE_TYPE="e2-medium"
+            NETWORK_TIER="PREMIUM"
+            SUBNET="webapp"
+            STARTUP_SCRIPT="startup-script.sh"
+            SERVICE_ACCOUNT_EMAIL="sangani@csye6225-414400.iam.gserviceaccount.com"
+            SCOPES="https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/logging.write"
+            REGION="us-east1"
+            TAGS="webapp-instance,http-server"
+            DISK_SIZE="100"
+            DISK_TYPE="pd-standard"
+            
+            IMAGE_ID="${{ steps.packer_build.outputs.image_id }}"
+            echo $IMAGE_ID
+            IMAGE_NAME="projects/csye6225-414400/global/images/$IMAGE_ID"
+            NEW_TEMPLATE="github-webapp-$IMAGE_ID"
+            gcloud compute instance-templates create $NEW_TEMPLATE \
+              --project="$PROJECT_ID" \
+              --machine-type="$MACHINE_TYPE" \
+              --network-interface=network-tier="$NETWORK_TIER",subnet="$SUBNET" \
+              --metadata-from-file startup-script="$STARTUP_SCRIPT" \
+              --maintenance-policy=MIGRATE \
+              --provisioning-model=STANDARD \
+              --service-account="$SERVICE_ACCOUNT_EMAIL" \
+              --scopes="$SCOPES" \
+              --region="$REGION" \
+              --tags="$TAGS" \
+              --create-disk="auto-delete=yes,boot=yes,device-name=persistent-disk-0,image=$IMAGE_NAME,mode=rw,size=$DISK_SIZE,type=$DISK_TYPE" \
+              --no-shielded-secure-boot \
+              --shielded-vtpm \
+              --shielded-integrity-monitoring \
+              --reservation-affinity=any
+            env:
+              GCP_AUTH: ${{ secrets.GCP_AUTH }}
+              GCP_DEV_PROJECT_ID: ${{ secrets.GCP_DEV_PROJECT_ID }}
+
+      - name: Update Instance Group with New Template
+        run: |
+          INSTANCE_GROUP_NAME="webapp-manager"
+          IMAGE_ID="${{ steps.packer_build.outputs.image_id }}"
+          echo $IMAGE_ID
+          NEW_TEMPLATE="github-webapp-$IMAGE_ID"
+          REGION="${REGION}"
+          gcloud compute instance-groups managed set-instance-template $INSTANCE_GROUP_NAME \
+            --template $NEW_TEMPLATE \
+            --region $REGION
+
+      - name: Wait for Update to Complete
+        run: |
+          INSTANCE_GROUP_NAME="webapp-manager"
+          IMAGE_ID="${{ steps.packer_build.outputs.image_id }}"
+          echo $IMAGE_ID
+          NEW_TEMPLATE="github-webapp-$IMAGE_ID"
+          REGION="${REGION}"
+          OPERATION_ID=$(gcloud compute instance-groups managed rolling-action start-update webapp-manager \
+          --version template=$NEW_TEMPLATE \
+          --region=us-east1 )
+          # Poll the operation status
+          STATUS="PENDING"
+          while [[ $STATUS != "DONE" ]]; do
+            sleep 30
+            STATUS=$(gcloud compute operations describe $OPERATION_ID --region $REGION --format="value(status)")
+            echo "Current status: $STATUS"
+          done
+
