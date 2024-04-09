@@ -67,16 +67,6 @@ jobs:
             exit 1
           fi
 
-      # - name: Run Packer build
-      #   run: |
-      #     cd packer/
-      #     packer init .
-      #     packer plugins install github.com/hashicorp/googlecompute
-      #     if ! packer build -var-file="variables.pkrvars.hcl" . ; then
-      #       echo "Failed - Packer build"
-      #       exit 1
-      #     fi
-
       - name: Run Packer build
         id: packer_build 
         run: |
@@ -95,11 +85,11 @@ jobs:
             cat <<EOFM > startup-script.sh
             #!/bin/bash
             sudo tee /tmp/webapp/.env > /dev/null <<'EOF'
-            USER_NAME=${{ env.USER_NAME }}
-            PASSWORD="PFHmTWcl0OZ7eMNf"
-            DATABASE=${{ env.DATABASE }}
-            HOST=${{ env.HOST }}
-            PORT=${{ env.PORT }}
+            USER_NAME=${{ secrets.MYSQL_USER }}
+            PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+            DATABASE=${{ secrets.MYSQL_DATABASE }}
+            HOST=${{ secrets.MYSQL_HOST }}
+            PORT=3000
             EOF
   
             sudo systemctl daemon-reload
@@ -107,16 +97,10 @@ jobs:
             sudo systemctl start webapp_start.service
             EOFM
             chmod +x startup-script.sh
-        env:
-            USER_NAME: webapp
-            PASSWORD: PFHmTWcl0OZ7eMNf
-            DATABASE: myDatabaseName
-            HOST: 172.22.0.2
-            PORT: 3000
 
       - name: Create instance template with Packer image
         run: |
-            PROJECT_ID="csye6225-414400"
+            PROJECT_ID="${{ secrets.GCP_DEV_PROJECT_ID }}"
             MACHINE_TYPE="e2-medium"
             NETWORK_TIER="PREMIUM"
             SUBNET="webapp"
@@ -130,7 +114,7 @@ jobs:
             
             IMAGE_ID="${{ steps.packer_build.outputs.image_id }}"
             echo $IMAGE_ID
-            IMAGE_NAME="projects/csye6225-414400/global/images/$IMAGE_ID"
+            IMAGE_NAME="projects/$PROJECT_ID/global/images/$IMAGE_ID"
             NEW_TEMPLATE="github-webapp-$IMAGE_ID"
             gcloud compute instance-templates create $NEW_TEMPLATE \
               --project="$PROJECT_ID" \
@@ -163,15 +147,34 @@ jobs:
         run: |
           INSTANCE_GROUP_NAME="webapp-manager"
           IMAGE_ID="${{ steps.packer_build.outputs.image_id }}"
-          echo $IMAGE_ID
+          echo "Image ID: $IMAGE_ID"
           NEW_TEMPLATE="github-webapp-$IMAGE_ID"
           REGION="us-east1"
-          OPERATION_ID=$(gcloud compute instance-groups managed rolling-action start-update webapp-manager --project=csye6225-414400 --type='proactive' --max-surge=3 --max-unavailable=3 --minimal-action='replace' --replacement-method='substitute' --version=template=projects/csye6225-414400/global/instanceTemplates/github-webapp4 --region=us-east1   )
-          # Poll the operation status
-          STATUS="PENDING"
-          while [[ $STATUS != "DONE" ]]; do
-            sleep 30
-            STATUS=$(gcloud compute operations describe $OPERATION_ID --region $REGION --format="value(status)")
-            echo "Current status: $STATUS"
-          done
+          
+          # Start the rolling update and capture the operation name (ID)
+          gcloud compute instance-groups managed rolling-action start-update $INSTANCE_GROUP_NAME \
+              --project="${{ secrets.GCP_DEV_PROJECT_ID }}" \
+              --type='proactive' \
+              --max-surge=3 \
+              --max-unavailable=3 \
+              --minimal-action='replace' \
+              --replacement-method='substitute' \
+              --version=template=projects/${{ secrets.GCP_DEV_PROJECT_ID }}/global/instanceTemplates/$NEW_TEMPLATE \
+              --region=$REGION --format="value(name)"
+          
+
+          gcloud compute instance-groups managed wait-until $INSTANCE_GROUP_NAME --version-target-reached --region=$REGION
+
+          # echo "Operation Output: $OPERATION_OUTPUT"
+          # OPERATION_ID=$(echo $OPERATION_OUTPUT | awk '{print $1}')
+          # echo "Operation ID: $OPERATION_ID"
+          
+          # # Poll the operation status
+          # STATUS="PENDING"
+          # while [[ $STATUS != "DONE" ]]; do
+          #   sleep 30
+          #   STATUS=$(gcloud compute operations describe $OPERATION_ID --project=csye6225-414400 --region $REGION --format="value(status)")
+          #   echo "Current status: $STATUS"
+          # done
+        
 
