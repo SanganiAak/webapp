@@ -90,6 +90,30 @@ jobs:
           
           echo "::set-output name=image_id::$IMAGE_ID"
           
+      - name: Create startup script
+        run: |
+            cat <<EOFM > startup-script.sh
+            #!/bin/bash
+            sudo tee /tmp/webapp/.env > /dev/null <<'EOF'
+            USER_NAME=${{ env.USER_NAME }}
+            PASSWORD="PFHmTWcl0OZ7eMNf"
+            DATABASE=${{ env.DATABASE }}
+            HOST=${{ env.HOST }}
+            PORT=${{ env.PORT }}
+            EOF
+  
+            sudo systemctl daemon-reload
+            sudo systemctl enable webapp_start.service
+            sudo systemctl start webapp_start.service
+            EOFM
+            chmod +x startup-script.sh
+        env:
+            USER_NAME: webapp
+            PASSWORD: PFHmTWcl0OZ7eMNf
+            DATABASE: myDatabaseName
+            HOST: 172.22.0.2
+            PORT: 3000
+
       - name: Create instance template with Packer image
         run: |
             PROJECT_ID="csye6225-414400"
@@ -124,9 +148,7 @@ jobs:
               --shielded-vtpm \
               --shielded-integrity-monitoring \
               --reservation-affinity=any
-            env:
-              GCP_AUTH: ${{ secrets.GCP_AUTH }}
-              GCP_DEV_PROJECT_ID: ${{ secrets.GCP_DEV_PROJECT_ID }}
+          
 
       - name: Update Instance Group with New Template
         run: |
@@ -134,10 +156,8 @@ jobs:
           IMAGE_ID="${{ steps.packer_build.outputs.image_id }}"
           echo $IMAGE_ID
           NEW_TEMPLATE="github-webapp-$IMAGE_ID"
-          REGION="${REGION}"
-          gcloud compute instance-groups managed set-instance-template $INSTANCE_GROUP_NAME \
-            --template $NEW_TEMPLATE \
-            --region $REGION
+          REGION="us-east1"
+          gcloud compute instance-groups managed set-instance-template $INSTANCE_GROUP_NAME --template $NEW_TEMPLATE --region $REGION
 
       - name: Wait for Update to Complete
         run: |
@@ -145,10 +165,8 @@ jobs:
           IMAGE_ID="${{ steps.packer_build.outputs.image_id }}"
           echo $IMAGE_ID
           NEW_TEMPLATE="github-webapp-$IMAGE_ID"
-          REGION="${REGION}"
-          OPERATION_ID=$(gcloud compute instance-groups managed rolling-action start-update webapp-manager \
-          --version template=$NEW_TEMPLATE \
-          --region=us-east1 )
+          REGION="us-east1"
+          OPERATION_ID=$(gcloud compute instance-groups managed rolling-action start-update webapp-manager --project=csye6225-414400 --type='proactive' --max-surge=3 --max-unavailable=3 --minimal-action='replace' --replacement-method='substitute' --version=template=projects/csye6225-414400/global/instanceTemplates/github-webapp4 --region=us-east1   )
           # Poll the operation status
           STATUS="PENDING"
           while [[ $STATUS != "DONE" ]]; do
