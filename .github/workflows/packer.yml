@@ -1,6 +1,9 @@
 name: Packer Build on GCP
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
       
 
 jobs:
