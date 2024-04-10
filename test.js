@@ -5,7 +5,7 @@ const request = supertest(app);
 const logger = require('./logger');
 
 beforeAll(async () => {
-  await sequelize.sync({ force: true });
+  await sequelize.sync();
   jest.setTimeout(10000);
 });
 

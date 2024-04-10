@@ -135,7 +135,6 @@ jobs:
               --shielded-integrity-monitoring \
               --reservation-affinity=any
           
-
       - name: Update Instance Group with New Template
         run: |
           INSTANCE_GROUP_NAME="webapp-manager"
@@ -164,19 +163,4 @@ jobs:
               --version=template=projects/${{ secrets.GCP_DEV_PROJECT_ID }}/global/instanceTemplates/$NEW_TEMPLATE \
               --region=$REGION --format="value(name)"
           
-
           gcloud compute instance-groups managed wait-until $INSTANCE_GROUP_NAME --version-target-reached --region=$REGION
-
-          # echo "Operation Output: $OPERATION_OUTPUT"
-          # OPERATION_ID=$(echo $OPERATION_OUTPUT | awk '{print $1}')
-          # echo "Operation ID: $OPERATION_ID"
-          
-          # # Poll the operation status
-          # STATUS="PENDING"
-          # while [[ $STATUS != "DONE" ]]; do
-          #   sleep 30
-          #   STATUS=$(gcloud compute operations describe $OPERATION_ID --project=csye6225-414400 --region $REGION --format="value(status)")
-          #   echo "Current status: $STATUS"
-          # done
-        
-
