@@ -111,6 +111,8 @@ jobs:
             TAGS="webapp-instance,http-server"
             DISK_SIZE="100"
             DISK_TYPE="pd-standard"
+            KEY_RING="${{ secrets.KEY_RING_CKMS }}"
+            VM_KEY="${{ secrets.VM_KEY_CKMS }}"
             
             IMAGE_ID="${{ steps.packer_build.outputs.image_id }}"
             echo $IMAGE_ID
@@ -127,7 +129,7 @@ jobs:
               --scopes="$SCOPES" \
               --region="$REGION" \
               --tags="$TAGS" \
-              --create-disk="auto-delete=yes,boot=yes,device-name=persistent-disk-0,image=$IMAGE_NAME,mode=rw,size=$DISK_SIZE,type=$DISK_TYPE" \
+              --create-disk="auto-delete=yes,boot=yes,device-name=persistent-disk-0,image=$IMAGE_NAME,kms-key=projects/csye6225-414400/locations/us-east1/keyRings/$KEY_RING/cryptoKeys/$VM_KEY,mode=rw,size=$DISK_SIZE,type=$DISK_TYPE" \
               --no-shielded-secure-boot \
               --shielded-vtpm \
               --shielded-integrity-monitoring \
