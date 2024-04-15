@@ -27,11 +27,11 @@ describe('User API Integration Tests', () => {
   test('Test 1 - Create an account, and using the GET call, validate account exists', async () => {
 
 
-    let response = await request.post('/v1/user').send(userData);
+    let response = await request.post('/v2/user').send(userData);
     expect(response.status).toBe(201);
     expect(response.body.email).toEqual(userData.email);
 
-    response = await request.get('/v1/user/self')
+    response = await request.get('/v2/user/self')
                             .set('Authorization', authHeader);
     expect(response.status).toBe(200);
     expect(response.body.email).toEqual(userData.email);
@@ -45,12 +45,12 @@ describe('User API Integration Tests', () => {
       password: "Password@123"
     };
     console.log(authHeader + " before put failed")
-    let response = await request.put('/v1/user/self')
+    let response = await request.put('/v2/user/self')
                                 .set('Authorization', authHeader)
                                 .send(updateData);
     expect(response.status).toBe(204);
 
-    response = await request.get('/v1/user/self')
+    response = await request.get('/v2/user/self')
                             .set('Authorization', authHeader);
     expect(response.status).toBe(200);
     expect(response.body.firstName).toEqual(updateData.firstName);
