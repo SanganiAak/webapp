@@ -80,7 +80,7 @@ app.all('/healthz', async (request, response) => {
 });
 
 // create user
-app.post('/v1/user', checkDatabaseConnection, validateUserInput, async (request, res) => {
+app.post('/v2/user', checkDatabaseConnection, validateUserInput, async (request, res) => {
   const { email, password, firstName, lastName } = request.body;
   try {
     const existingUser = await userTable.findOne({ where: { email } });
@@ -132,7 +132,7 @@ app.post('/v1/user', checkDatabaseConnection, validateUserInput, async (request,
 
 
 // update user
-app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (request, res) => {
+app.put('/v2/user/self', checkDatabaseConnection, validateUserInput, async (request, res) => {
   const { firstName, lastName, password } = request.body;
   const authHeader = request.headers.authorization || '';
   const base64Credentials = authHeader.split(' ')[1] || '';
@@ -182,7 +182,7 @@ app.put('/v1/user/self', checkDatabaseConnection, validateUserInput, async (requ
 });
 
 // get user
-app.get('/v1/user/self', checkDatabaseConnection, async (request, res) => {
+app.get('/v2/user/self', checkDatabaseConnection, async (request, res) => {
     const authHeader = request.headers.authorization || '';
     const base64Credentials = authHeader.split(' ')[1] || '';
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
